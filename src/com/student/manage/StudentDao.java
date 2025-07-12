@@ -1,92 +1,92 @@
 package com.student.manage;
 
-import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class StudentDao {
 
     public static boolean insertStudentToDB(Student st) {
-
         boolean f = false;
-        // jdbc code....
-        try {
-            Connection con = CP.createC();
-            String q = "insert into students(sname,sphone,scity) values(?,?,?)";
+        String q = "INSERT INTO students (sname, sphone, scity) VALUES (?, ?, ?)";
 
-            // prepared stmt
-            PreparedStatement pstmt = con.prepareStatement(q);
+        try (Connection con = CP.createC();
+             PreparedStatement pstmt = con.prepareStatement(q)) {
 
-            // set the values of parameters
             pstmt.setString(1, st.getStudentName());
             pstmt.setString(2, st.getStudentPhone());
             pstmt.setString(3, st.getStudentCity());
 
-            // execute
-            pstmt.executeUpdate();
-            f = true;
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) f = true;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         return f;
-
     }
 
     public static boolean deleteStudent(int userId) {
         boolean f = false;
-        // jdbc code....
-        try {
-            Connection con = CP.createC();
-            String q = "delete from students where sid=?";
+        String q = "DELETE FROM students WHERE sid = ?";
 
-            // prepared stmt
-            PreparedStatement pstmt = con.prepareStatement(q);
+        try (Connection con = CP.createC();
+             PreparedStatement pstmt = con.prepareStatement(q)) {
 
-            // set the values of parameters
-            pstmt.setLong(1, userId);
-
-            // execute
-            pstmt.executeUpdate();
-            f = true;
+            pstmt.setInt(1, userId);
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) f = true;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         return f;
-
     }
 
     public static void showAllstudent() {
+        String q = "SELECT * FROM students";
 
-        boolean f = false;
-        // jdbc code....
-        try {
-            Connection con = CP.createC();
-            String q = "select * from students;";
-            Statement stmt = con.createStatement();
-            ResultSet set = stmt.executeQuery(q);
+        try (Connection con = CP.createC();
+             Statement stmt = con.createStatement();
+             ResultSet set = stmt.executeQuery(q)) {
 
             while (set.next()) {
-                int id = set.getInt(1);
-                String name = set.getString(2);
-                String phone = set.getString(3);
+                int id = set.getInt("sid");
+                String name = set.getString("sname");
+                String phone = set.getString("sphone");
                 String city = set.getString("scity");
 
-                System.out.println("ID:" + id);
-                System.out.println("name:" + name);
-
-                System.out.println("Phone:" + phone);
-
-                System.out.println("city:" + city);
-                System.out.println("+++++++++++++++++++++++++++++++");
-
+                System.out.println("ID: " + id);
+                System.out.println("Name: " + name);
+                System.out.println("Phone: " + phone);
+                System.out.println("City: " + city);
+                System.out.println("---------------------------");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    public static boolean updateAllstudent(int id, String name, String phone, String city) {
+        boolean f = false;
+        String q = "UPDATE students SET sname = ?, sphone = ?, scity = ? WHERE sid = ?";
+
+        try (Connection con = CP.createC();
+             PreparedStatement pstmt = con.prepareStatement(q)) {
+
+            pstmt.setString(1, name);
+            pstmt.setString(2, phone);
+            pstmt.setString(3, city);
+            pstmt.setInt(4, id);
+
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) f = true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return f;
     }
 }
